@@ -47,6 +47,25 @@ def txt_2_xls(filename, xlsname):
     except:
         raise
 
+def xls_2_txt(xlsname,filename):
+    """
+    :文本转换成xls的函数
+    :param filename txt文本文件名称、
+    :param xlsname 表示转换后的excel文件名
+    """
+    try:
+        fopen = open(filename, "r+")
+        data = xlrd.open_workbook(xlsname)
+        table = data.sheets()[0]
+        nrows = table.nrows
+        ncols = table.ncols
+
+        for nrow in range(0, nrows):
+            for ncol in range(0, ncols):
+                cell = table.cell(nrow, ncol).value
+
+    except:
+        raise
 
 
 def xls_2_xls(from_xls, to_xls):
@@ -166,15 +185,15 @@ def proc_xls(xls_1, xls_2, result):
 
 
 if __name__ == "__main__":
-    filename = "ProjectConfig.mk"
+    filename = "VP531_H5313_common/ProjectConfig.mk"
     xlsname = "test.xlsx"
-    #txt_2_xls(filename, xlsname)
-    from_xls = "T-S01-025-V1.4 VP39E AH4510 V00 SYM硬件配置&任务表170719.xlsx"
+    txt_2_xls(filename, xlsname)
+    from_xls = "VP531E_AH5313_配置M_硬件配置表&任务表-ME84 GD B2&5+汉天下-20180911.xls"
     to_xls = "test2.xlsx"
     #xls_2_xls(from_xls, to_xls)
     xls_1 = "test2.xlsx"
     xls_2 = "test.xlsx"
     result = "result.xlsx"
-    proc_xls(xls_1, xls_2, result)
+    #proc_xls(xls_1, xls_2, result)
 
 
