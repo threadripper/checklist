@@ -47,23 +47,33 @@ def txt_2_xls(filename, xlsname):
     except:
         raise
 
-def xls_2_txt(xlsname,filename):
+def xls_2_txt(xls_name,file_name):
     """
     :文本转换成xls的函数
     :param filename txt文本文件名称、
     :param xlsname 表示转换后的excel文件名
     """
     try:
-        fopen = open(filename, "r+")
-        data = xlrd.open_workbook(xlsname)
+        fopen = open(file_name, "w")
+        data = xlrd.open_workbook(xls_name)
         table = data.sheets()[0]
         nrows = table.nrows
         ncols = table.ncols
 
         for nrow in range(0, nrows):
+            print(nrow)
             for ncol in range(0, ncols):
-                cell = table.cell(nrow, ncol).value
-
+                cell_value = table.cell(nrow, ncol).value
+                if cell_value == "":
+                    fopen.write("\n")
+                    break
+                if ncol == 0:
+                    fopen.write(cell_value)
+                    fopen.write(" = ")
+                else:
+                    fopen.write(cell_value)
+                    fopen.write(" ")
+            print(ncol)
     except:
         raise
 
@@ -187,7 +197,10 @@ def proc_xls(xls_1, xls_2, result):
 if __name__ == "__main__":
     filename = "VP531_H5313_common/ProjectConfig.mk"
     xlsname = "test.xlsx"
-    txt_2_xls(filename, xlsname)
+    #txt_2_xls(filename, xlsname)
+    xls_name = "test.xlsx"
+    file_name = "trans_file"
+    xls_2_txt(xls_name,file_name)
     from_xls = "VP531E_AH5313_配置M_硬件配置表&任务表-ME84 GD B2&5+汉天下-20180911.xls"
     to_xls = "test2.xlsx"
     #xls_2_xls(from_xls, to_xls)
