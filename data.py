@@ -1,7 +1,10 @@
 # -*- encoding: utf-8 -*-
 import xlwt  # 需要的模块
 import xlrd
+from xlutils.copy import copy
+from goto import with_goto
 import re
+import os.path
 
 def txt_2_xls(filename, xlsname):
     """
@@ -100,7 +103,73 @@ def xls_2_xls(from_xls, to_xls):
         xls.save(to_xls)  # 保存xls文件
 
     except:
-        pass
+        raise
+@with_goto
+def xls_2_xls_for_memory(from_xls, to_xls):
+    """
+    :xls转换成xls的函数
+    :param from_xls xls文件名称、
+    :param to_xls 表示转换后的excel文件名
+    #https://blog.csdn.net/qq_16645423/article/details/79466958
+    """
+    try:
+        if os.path.isfile(to_xls):
+            pass
+        else:
+            data = xlrd.open_workbook(from_xls)
+            len_copy = len(data.sheets())
+            xls = xlwt.Workbook()
+            for copy_sheet in range(0, len_copy):
+                table = data.sheets()[copy_sheet] #获取表单
+                nrows = table.nrows  # 获取行数
+                ncols = table.ncols #获取列数
+                sheet = xls.add_sheet("sheet%d"%(copy_sheet))
+                for nrow in range(0, nrows):
+                    for ncol in range(0, ncols):
+                        cell = table.cell(nrow, ncol).value
+                        sheet.write(nrow, ncol, cell)
+            xls.save(to_xls)  # 保存xls文件
+
+        xls = xlrd.open_workbook(to_xls)
+        new_xls = copy(xls)
+
+        data = xlrd.open_workbook(from_xls, "r+")
+        nsheets = len(data.sheets())
+        for nsheet in range(0, nsheets):
+            print(nsheets)
+            table = data.sheets()[nsheet] #获取表单
+            xtable = xls.sheets()[nsheet]
+            print(xtable.name)
+            x_w_sheet = new_xls.get_sheet(xtable.name)
+            nrows = table.nrows  # 获取行数
+            print("nrows:%d"%(nrows))
+            ncols = table.ncols #获取列数
+            print("ncols:%d"%(ncols))
+            xrows = xtable.nrows
+            print("xrows:%d"%(xrows))
+
+            for nrow in range(0, nrows):
+                for ncol in range(0, ncols):
+                    cell = table.cell(nrow, ncol).value
+                    print(cell)
+                    for xrow in range(0, xrows):
+                        print(table.cell(nrow, 1).value)
+                        print(cell)
+                        if table.cell(nrow, 1).value == xtable.cell(xrow, 1).value:
+                            x_w_sheet.write(xrow+xrows, ncol, "aaa")
+                            print("meet")
+                            goto .next
+                        else:
+                            print("not meet")
+                            x_w_sheet.write(xrow+xrows, ncol, cell)
+                            break
+                label .next
+            if cell != "END" and table.cell(nrow, 0).value != "END":
+                x_w_sheet.write(nrow+xrows+1, 0, "END")
+        new_xls.save(to_xls)  # 保存xls文件
+
+    except:
+       raise
 
 def proc_xls(xls_1, xls_2, result):
     """
@@ -176,6 +245,7 @@ def proc_xls(xls_1, xls_2, result):
                     if "sagereal_memory_flash" in cell_3:
                         fopen = open("memory/%s/custom_MemoryDevice.h"%(cell_2), 'r+')
 
+                        fopen.close()
                     if platform[0] in cell_2:
                         if overwrite :
                             sheet.write(overwrite, 1, cell_3)
@@ -200,10 +270,11 @@ if __name__ == "__main__":
     #txt_2_xls(filename, xlsname)
     xls_name = "test.xlsx"
     file_name = "trans_file"
-    xls_2_txt(xls_name,file_name)
-    from_xls = "VP531E_AH5313_配置M_硬件配置表&任务表-ME84 GD B2&5+汉天下-20180911.xls"
-    to_xls = "test2.xlsx"
-    #xls_2_xls(from_xls, to_xls)
+    #xls_2_txt(xls_name,file_name)
+    #from_xls = "VP531E_AH5313_配置M_硬件配置表&任务表-ME84 GD B2&5+汉天下-20180911.xls"
+    from_xls = "MemoryDeviceList_MT6580_1.xls"
+    to_xls = "all_memory.xlsx"
+    xls_2_xls_for_memory(from_xls, to_xls)
     xls_1 = "test2.xlsx"
     xls_2 = "test.xlsx"
     result = "result.xlsx"
