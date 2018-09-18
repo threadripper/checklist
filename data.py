@@ -135,34 +135,41 @@ def xls_2_xls_for_memory(from_xls, to_xls):
 
         data = xlrd.open_workbook(from_xls, "r+")
         nsheets = len(data.sheets())
-        for nsheet in range(0, nsheets):
+        for nsheet in range(0, nsheets):#获取等待拷贝的表格sheet数量
             print(nsheets)
-            table = data.sheets()[nsheet] #获取表单
-            xtable = xls.sheets()[nsheet]
-            print(xtable.name)
-            x_w_sheet = new_xls.get_sheet(xtable.name)
-            nrows = table.nrows  # 获取行数
+            table = data.sheets()[nsheet] #获取表单，待拷贝的sheet
+            nrows = table.nrows  # 获取行数，表示即将拷贝的行
+            print("nrows:%d" % (nrows))
+            ncols = table.ncols  # 获取列数，表示即将拷贝的列
+            print("ncols:%d" % (ncols))
             print("nrows:%d"%(nrows))
-            ncols = table.ncols #获取列数
-            print("ncols:%d"%(ncols))
-            xrows = xtable.nrows
-            print("xrows:%d"%(xrows))
-
-            for nrow in range(0, nrows):
-                for ncol in range(0, ncols):
-                    cell = table.cell(nrow, ncol).value
-                    print(cell)
-                    for xrow in range(0, xrows):
-                        print(table.cell(nrow, 1).value)
-                        print(cell)
-                        if table.cell(nrow, 1).value == xtable.cell(xrow, 1).value:
-                            x_w_sheet.write(xrow+xrows, ncol, "aaa")
-                            print("meet")
-                            goto .next
-                        else:
-                            print("not meet")
-                            x_w_sheet.write(xrow+xrows, ncol, cell)
-                            break
+            xtable = xls.sheets()[nsheet]#正在执行的sheet
+            print(xtable.name)
+            xrows = xtable.nrows #获取原始表格的行数
+            print("xrows:%d" % (xrows))
+            x_w_sheet = new_xls.get_sheet(xtable.name)#选择写入对象sheet
+            nrow = 0
+            ncol = 0
+            cell = table.cell(nrow, ncol).value  # 待拷贝的sheet里面的当前单元的值
+            for nrow in range(0, nrows): #待拷贝的行循环
+                print(nrow)
+                for xrow in range(0, xrows):
+                    print("xrow:%d" % (xrow))
+                    print("cell_nrow_1:%s" % (table.cell(nrow, 1).value))
+                    print("cell_xrow_1:%s" % (xtable.cell(xrow, 1).value))
+                    value_nrow_1 = table.cell(nrow, 1).value
+                    if len(value_nrow_1) == 0:  # 如果待拷贝的这个行是空的，就跳过
+                        goto.next
+                    if table.cell(nrow, 1).value == xtable.cell(xrow, 1).value:
+                        print("meet")
+                        goto.next
+                    else:
+                        print("not meet")
+                        if xrow == xrows-1 :
+                            for ncol in range(0, ncols):  # 待拷贝的列循环
+                                cell = table.cell(nrow, ncol).value
+                                x_w_sheet.write(nrow + xrows, ncol, cell)
+                                print("cell1:%s" % (cell))
                 label .next
             if cell != "END" and table.cell(nrow, 0).value != "END":
                 x_w_sheet.write(nrow+xrows+1, 0, "END")
