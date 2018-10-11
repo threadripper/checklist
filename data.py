@@ -50,7 +50,7 @@ def txt_2_xls(filename, xlsname):
     except:
         raise
 
-def xls_2_txt(xls_name,file_name):
+def xls_Prcfig_txt(xls_name,file_name):
     """
     :文本转换成xls的函数
     :param filename txt文本文件名称、
@@ -81,7 +81,7 @@ def xls_2_txt(xls_name,file_name):
         raise
 
 
-def xls_2_xls(from_xls, to_xls):
+def xls_Prcfig_xls(from_xls, to_xls):
     """
     :xls转换成xls的函数
     :param from_xls xls文件名称、
@@ -105,7 +105,7 @@ def xls_2_xls(from_xls, to_xls):
     except:
         raise
 @with_goto
-def xls_2_xls_for_memory(from_xls, to_xls):
+def xls_Prcfig_xls_for_memory(from_xls, to_xls):
     """
     :xls转换成xls的函数
     :param from_xls xls文件名称、
@@ -150,15 +150,14 @@ def xls_2_xls_for_memory(from_xls, to_xls):
             x_w_sheet = new_xls.get_sheet(xtable.name)#选择写入对象sheet
             nrow = 0
             ncol = 0
+            row_add = 0
             cell = table.cell(nrow, ncol).value  # 待拷贝的sheet里面的当前单元的值
             for nrow in range(0, nrows): #待拷贝的行循环
                 print(nrow)
                 for xrow in range(0, xrows):
                     print("xrow:%d" % (xrow))
-                    print("cell_nrow_1:%s" % (table.cell(nrow, 1).value))
-                    print("cell_xrow_1:%s" % (xtable.cell(xrow, 1).value))
-                    value_nrow_1 = table.cell(nrow, 1).value
-                    if len(value_nrow_1) == 0:  # 如果待拷贝的这个行是空的，就跳过
+                    value_nrow_hw = table.cell(nrow, 1).value
+                    if len(value_nrow_hw) == 0:  # 如果待拷贝的这个行是空的，就跳过
                         goto.next
                     if table.cell(nrow, 1).value == xtable.cell(xrow, 1).value:
                         print("meet")
@@ -168,101 +167,93 @@ def xls_2_xls_for_memory(from_xls, to_xls):
                         if xrow == xrows-1 :
                             for ncol in range(0, ncols):  # 待拷贝的列循环
                                 cell = table.cell(nrow, ncol).value
-                                x_w_sheet.write(nrow + xrows, ncol, cell)
-                                print("cell1:%s" % (cell))
+                                x_w_sheet.write(row_add + xrows, ncol, cell)
+                            row_add += 1
                 label .next
-            if cell != "END" and table.cell(nrow, 0).value != "END":
-                x_w_sheet.write(nrow+xrows+1, 0, "END")
+            #if cell != "END" and table.cell(nrow, 0).value != "END":
+            #    x_w_sheet.write(row_add+xrows, 0, "END")
         new_xls.save(to_xls)  # 保存xls文件
 
     except:
        raise
 
-def proc_xls(xls_1, xls_2, result):
+def proc_xls(xls_hw, xls_Prcfig, result):
     """
     :xls处理的函数
-    :param xls_1, xls_2 待处理xls文件名称、
+    :param xls_hw, xls_Prcfig 待处理xls文件名称、
     :param result 表示处理后的excel文件名
     #https://blog.csdn.net/qq_16645423/article/details/79466958
     """
     try:
         print("ok")
-        data_1 = xlrd.open_workbook(xls_1)
-        table_1 = data_1.sheets()[0]  # 获取表单
-        nrows_1 = table_1.nrows  # 获取行数
-        ncols_1 = table_1.ncols #获取列数
+        data_hw = xlrd.open_workbook(xls_hw)
+        table_hw = data_hw.sheets()[0]  # 获取表单
+        nrows_hw = table_hw.nrows  # 获取行数
+        ncols_hw = table_hw.ncols #获取列数
 
-        data_2 = xlrd.open_workbook(xls_2)
-        table_2 = data_2.sheets()[0]  # 获取表单
-        nrows_2 = table_2.nrows  # 获取行数
-        ncols_2 = table_2.ncols
+        data_Prcfig = xlrd.open_workbook(xls_Prcfig)
+        table_Prcfig = data_Prcfig.sheets()[0]  # 获取表单
+        nrows_Prcfig = table_Prcfig.nrows  # 获取行数
+        ncols_Prcfig = table_Prcfig.ncols
 
         xls = xlwt.Workbook()
         sheet = xls.add_sheet('sheet1', cell_overwrite_ok=True) # Attempt to overwrite cell
         overwrite = 0
-        for nrow_1 in range(0, nrows_1):
+        for nrow_hw in range(0, nrows_hw):
 
-            cell_1 = table_1.cell(nrow_1, 0).value
-            if cell_1 == '主板PCB' :
-                platform = re.findall('\d+', table_1.cell(nrow_1, 3).value) #匹配数字
+            cell_hw = table_hw.cell(nrow_hw, 0).value
+            if cell_hw == '主板PCB' :
+                key_words_pcb = re.findall('\d+', table_hw.cell(nrow_hw, 3).value) #python 正则表达式 re findall 方法能够以列表的形式返回能匹配的子串
                 overwrite = 0
-                for nrow_2 in range(0, nrows_2):
-                    cell_2 = table_2.cell(nrow_2, 1).value
-                    cell_3 = table_2.cell(nrow_2, 0).value
-                    if platform[0] in cell_2:
+                for nrow_Prcfig in range(0, nrows_Prcfig):
+                    cell_Prcfig_1 = table_Prcfig.cell(nrow_Prcfig, 1).value
+                    cell_Prcfig_0 = table_Prcfig.cell(nrow_Prcfig, 0).value
+                    if key_words_pcb[0] in cell_Prcfig_1:
                         if overwrite :
-                            sheet.write(overwrite, 1, cell_3)
-                            sheet.write(overwrite, 2, cell_2)
+                            sheet.write(overwrite, 1, cell_Prcfig_0)
+                            sheet.write(overwrite, 2, cell_Prcfig_1)
                         else :
-                            sheet.write(overwrite, 0, cell_1)
-                            sheet.write(overwrite, 1, cell_3)
-                            sheet.write(overwrite, 2, cell_2)
+                            sheet.write(overwrite, 0, cell_hw)
+                            sheet.write(overwrite, 1, cell_Prcfig_0)
+                            sheet.write(overwrite, 2, cell_Prcfig_1)
                         overwrite += 1
                     #else:
                         #print("nok")
                 print(overwrite)
 
-            if cell_1 == 'CPU' :
-                sheet.write(overwrite, 0, cell_1)
-                platform = re.findall('\d+', table_1.cell(nrow_1, 2).value) #匹配数字
+            if cell_hw == 'CPU' :
+                sheet.write(overwrite, 0, cell_hw)
+                key_words_cpu = re.findall('\d+', table_hw.cell(nrow_hw, 2).value) #匹配cell_hw中的数字
 
-                for nrow_2 in range(0, nrows_2):
-                    cell_2 = table_2.cell(nrow_2, 1).value
-                    cell_3 = table_2.cell(nrow_2, 0).value
-                    if platform[0] in cell_2:
+                for nrow_Prcfig in range(0, nrows_Prcfig):
+                    cell_Prcfig_1 = table_Prcfig.cell(nrow_Prcfig, 1).value
+                    cell_Prcfig_0 = table_Prcfig.cell(nrow_Prcfig, 0).value
+                    if key_words_cpu[0] in cell_Prcfig_1:
                         if overwrite :
-                            sheet.write(overwrite, 1, cell_3)
-                            sheet.write(overwrite, 2, cell_2)
+                            sheet.write(overwrite, 1, cell_Prcfig_0)
+                            sheet.write(overwrite, 2, cell_Prcfig_1)
                         else :
-                            sheet.write(overwrite, 1, cell_3)
-                            sheet.write(overwrite, 2, cell_2)
+                            sheet.write(overwrite, 1, cell_Prcfig_0)
+                            sheet.write(overwrite, 2, cell_Prcfig_1)
                         overwrite += 1
                     #else:
                         #print("nok")
                 print(overwrite)
 
 
-            if cell_1 == 'FLASH' :
-                sheet.write(overwrite, 0, cell_1)
-                #platform = re.findall('\d+', table_1.cell(nrow_1, 2).value) #匹配数字
-
-                for nrow_2 in range(0, nrows_2):
-                    cell_2 = table_2.cell(nrow_2, 1).value
-                    cell_3 = table_2.cell(nrow_2, 0).value
-                    if "sagereal_memory_flash" in cell_3:
-                        fopen = open("memory/%s/custom_MemoryDevice.h"%(cell_2), 'r+')
+            if cell_hw == 'FLASH' :
+                sheet.write(overwrite, 0, cell_hw)
+                key_words_flash = table_hw.cell(nrow_hw, 2).value
+                print(key_words_flash)
+                for nrow_Prcfig in range(0, nrows_Prcfig):
+                    cell_Prcfig_1 = table_Prcfig.cell(nrow_Prcfig, 1).value
+                    cell_Prcfig_0 = table_Prcfig.cell(nrow_Prcfig, 0).value
+                    if "sagereal_memory_flash" in cell_Prcfig_0:
+                        fopen = open("memory/%s/custom_MemoryDevice.h"%(cell_Prcfig_1), 'r+')
 
                         fopen.close()
-                    if platform[0] in cell_2:
-                        if overwrite :
-                            sheet.write(overwrite, 1, cell_3)
-                            sheet.write(overwrite, 2, cell_2)
-                        else :
-                            sheet.write(overwrite, 1, cell_3)
-                            sheet.write(overwrite, 2, cell_2)
-                        overwrite += 1
-                    #else:
-                        #print("nok")
+                    else:
+                        print("notmeet")
                 print(overwrite)
 
         xls.save(result)  # 保存xls文件
@@ -277,14 +268,14 @@ if __name__ == "__main__":
     #txt_2_xls(filename, xlsname)
     xls_name = "test.xlsx"
     file_name = "trans_file"
-    #xls_2_txt(xls_name,file_name)
+    #xls_Prcfig_txt(xls_name,file_name)
     #from_xls = "VP531E_AH5313_配置M_硬件配置表&任务表-ME84 GD B2&5+汉天下-20180911.xls"
-    from_xls = "MemoryDeviceList_MT6580_1.xls"
+    from_xls = "MemoryDeviceList_MT6580_2.xls"
     to_xls = "all_memory.xlsx"
-    xls_2_xls_for_memory(from_xls, to_xls)
-    xls_1 = "test2.xlsx"
-    xls_2 = "test.xlsx"
+#    xls_Prcfig_xls_for_memory(from_xls, to_xls)
+    xls_hw = "test2.xlsx"
+    xls_Prcfig = "test.xlsx"
     result = "result.xlsx"
-    #proc_xls(xls_1, xls_2, result)
+    proc_xls(xls_hw, xls_Prcfig, result)
 
 
